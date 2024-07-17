@@ -1,4 +1,13 @@
-import { createContext, useState, useContext, ReactNode } from "react";
+import { createContext, useContext, ReactNode, useReducer } from "react";
+
+type LoadingState = {
+  loading: boolean;
+};
+
+type LoadingAction = {
+  type: "SET_LOADING";
+  payload: boolean;
+};
 
 type LoadingContextType = {
   loading: boolean;
@@ -11,11 +20,27 @@ type LoadingProviderProps = {
   children: ReactNode;
 };
 
+const loadingReducer = (
+  state: LoadingState,
+  action: LoadingAction
+): LoadingState => {
+  switch (action.type) {
+    case "SET_LOADING":
+      return { loading: action.payload };
+    default:
+      return state;
+  }
+};
+
 const LoadingProvider = ({ children }: LoadingProviderProps) => {
-  const [loading, setLoading] = useState(false);
+  const [state, dispatch] = useReducer(loadingReducer, { loading: false });
+
+  const setLoading = (loading: boolean) => {
+    dispatch({ type: "SET_LOADING", payload: loading });
+  };
 
   return (
-    <LoadingContext.Provider value={{ loading, setLoading }}>
+    <LoadingContext.Provider value={{ loading: state.loading, setLoading }}>
       {children}
     </LoadingContext.Provider>
   );
